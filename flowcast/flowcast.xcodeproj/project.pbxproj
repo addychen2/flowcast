@@ -1,0 +1,678 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B52B8D732D30862500A988DB /* TomTomSDKBindingFrameworkHTTPInternal in Frameworks */ = {isa = PBXBuildFile; productRef = B52B8D722D30862500A988DB /* TomTomSDKBindingFrameworkHTTPInternal */; };
+		B52B8D752D30862500A988DB /* TomTomSDKBindingFrameworkLoggingInternal in Frameworks */ = {isa = PBXBuildFile; productRef = B52B8D742D30862500A988DB /* TomTomSDKBindingFrameworkLoggingInternal */; };
+		B52B8D772D30862500A988DB /* TomTomSDKBindingMapDisplayEngineInternal in Frameworks */ = {isa = PBXBuildFile; productRef = B52B8D762D30862500A988DB /* TomTomSDKBindingMapDisplayEngineInternal */; };
+		B52B8D792D30862500A988DB /* TomTomSDKBindingTrafficTileGeneratorInternal in Frameworks */ = {isa = PBXBuildFile; productRef = B52B8D782D30862500A988DB /* TomTomSDKBindingTrafficTileGeneratorInternal */; };
+		B52B8D7B2D30862500A988DB /* TomTomSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = B52B8D7A2D30862500A988DB /* TomTomSDKCommon */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B560360D2D30811100909ABE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B56035F42D30810F00909ABE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B56035FB2D30810F00909ABE;
+			remoteInfo = flowcast;
+		};
+		B56036172D30811100909ABE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B56035F42D30810F00909ABE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B56035FB2D30810F00909ABE;
+			remoteInfo = flowcast;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B5663E642D35A1EE001700AB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B56035FC2D30810F00909ABE /* flowcast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowcast.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B560360C2D30811100909ABE /* flowcastTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = flowcastTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B56036162D30811100909ABE /* flowcastUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = flowcastUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B524C4202D35DEF70070B880 /* Exceptions for "flowcast" folder in "flowcast" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B56035FB2D30810F00909ABE /* flowcast */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		B5663E652D35A1EE001700AB /* Exceptions for "flowcast" folder in "Embed Frameworks" phase from "flowcast" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				heresdk.xcframework = (CodeSignOnCopy, RemoveHeadersOnCopy, );
+			};
+			buildPhase = B5663E642D35A1EE001700AB /* Embed Frameworks */;
+			membershipExceptions = (
+				heresdk.xcframework,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B56035FE2D30810F00909ABE /* flowcast */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B524C4202D35DEF70070B880 /* Exceptions for "flowcast" folder in "flowcast" target */,
+				B5663E652D35A1EE001700AB /* Exceptions for "flowcast" folder in "Embed Frameworks" phase from "flowcast" target */,
+			);
+			path = flowcast;
+			sourceTree = "<group>";
+		};
+		B560360F2D30811100909ABE /* flowcastTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = flowcastTests;
+			sourceTree = "<group>";
+		};
+		B56036192D30811100909ABE /* flowcastUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = flowcastUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B56035F92D30810F00909ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B52B8D7B2D30862500A988DB /* TomTomSDKCommon in Frameworks */,
+				B52B8D772D30862500A988DB /* TomTomSDKBindingMapDisplayEngineInternal in Frameworks */,
+				B52B8D732D30862500A988DB /* TomTomSDKBindingFrameworkHTTPInternal in Frameworks */,
+				B52B8D792D30862500A988DB /* TomTomSDKBindingTrafficTileGeneratorInternal in Frameworks */,
+				B52B8D752D30862500A988DB /* TomTomSDKBindingFrameworkLoggingInternal in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B56036092D30811100909ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B56036132D30811100909ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B55084222D36442A00EDEFF3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B56035F32D30810F00909ABE = {
+			isa = PBXGroup;
+			children = (
+				B56035FE2D30810F00909ABE /* flowcast */,
+				B560360F2D30811100909ABE /* flowcastTests */,
+				B56036192D30811100909ABE /* flowcastUITests */,
+				B55084222D36442A00EDEFF3 /* Frameworks */,
+				B56035FD2D30810F00909ABE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B56035FD2D30810F00909ABE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B56035FC2D30810F00909ABE /* flowcast.app */,
+				B560360C2D30811100909ABE /* flowcastTests.xctest */,
+				B56036162D30811100909ABE /* flowcastUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B56035FB2D30810F00909ABE /* flowcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B56036202D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcast" */;
+			buildPhases = (
+				B56035F82D30810F00909ABE /* Sources */,
+				B56035F92D30810F00909ABE /* Frameworks */,
+				B56035FA2D30810F00909ABE /* Resources */,
+				B5663E642D35A1EE001700AB /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B56035FE2D30810F00909ABE /* flowcast */,
+			);
+			name = flowcast;
+			packageProductDependencies = (
+				B52B8D722D30862500A988DB /* TomTomSDKBindingFrameworkHTTPInternal */,
+				B52B8D742D30862500A988DB /* TomTomSDKBindingFrameworkLoggingInternal */,
+				B52B8D762D30862500A988DB /* TomTomSDKBindingMapDisplayEngineInternal */,
+				B52B8D782D30862500A988DB /* TomTomSDKBindingTrafficTileGeneratorInternal */,
+				B52B8D7A2D30862500A988DB /* TomTomSDKCommon */,
+			);
+			productName = flowcast;
+			productReference = B56035FC2D30810F00909ABE /* flowcast.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B560360B2D30811100909ABE /* flowcastTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B56036232D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcastTests" */;
+			buildPhases = (
+				B56036082D30811100909ABE /* Sources */,
+				B56036092D30811100909ABE /* Frameworks */,
+				B560360A2D30811100909ABE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B560360E2D30811100909ABE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B560360F2D30811100909ABE /* flowcastTests */,
+			);
+			name = flowcastTests;
+			packageProductDependencies = (
+			);
+			productName = flowcastTests;
+			productReference = B560360C2D30811100909ABE /* flowcastTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B56036152D30811100909ABE /* flowcastUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B56036262D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcastUITests" */;
+			buildPhases = (
+				B56036122D30811100909ABE /* Sources */,
+				B56036132D30811100909ABE /* Frameworks */,
+				B56036142D30811100909ABE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B56036182D30811100909ABE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B56036192D30811100909ABE /* flowcastUITests */,
+			);
+			name = flowcastUITests;
+			packageProductDependencies = (
+			);
+			productName = flowcastUITests;
+			productReference = B56036162D30811100909ABE /* flowcastUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B56035F42D30810F00909ABE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					B56035FB2D30810F00909ABE = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					B560360B2D30811100909ABE = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = B56035FB2D30810F00909ABE;
+					};
+					B56036152D30811100909ABE = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = B56035FB2D30810F00909ABE;
+					};
+				};
+			};
+			buildConfigurationList = B56035F72D30810F00909ABE /* Build configuration list for PBXProject "flowcast" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B56035F32D30810F00909ABE;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B56035FD2D30810F00909ABE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B56035FB2D30810F00909ABE /* flowcast */,
+				B560360B2D30811100909ABE /* flowcastTests */,
+				B56036152D30811100909ABE /* flowcastUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B56035FA2D30810F00909ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B560360A2D30811100909ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B56036142D30811100909ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B56035F82D30810F00909ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B56036082D30811100909ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B56036122D30811100909ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B560360E2D30811100909ABE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B56035FB2D30810F00909ABE /* flowcast */;
+			targetProxy = B560360D2D30811100909ABE /* PBXContainerItemProxy */;
+		};
+		B56036182D30811100909ABE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B56035FB2D30810F00909ABE /* flowcast */;
+			targetProxy = B56036172D30811100909ABE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B560361E2D30811100909ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B560361F2D30811100909ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B56036212D30811100909ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"flowcast/Preview Content\"";
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = flowcast/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to provide navigation guidance";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to provide navigation guidance";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B56036222D30811100909ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"flowcast/Preview Content\"";
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = flowcast/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to provide navigation guidance";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to provide navigation guidance";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B56036242D30811100909ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcastTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/flowcast.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/flowcast";
+			};
+			name = Debug;
+		};
+		B56036252D30811100909ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcastTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/flowcast.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/flowcast";
+			};
+			name = Release;
+		};
+		B56036272D30811100909ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcastUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = flowcast;
+			};
+			name = Debug;
+		};
+		B56036282D30811100909ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 56V38R8ZG4;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flowcastUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = flowcast;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B56035F72D30810F00909ABE /* Build configuration list for PBXProject "flowcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B560361E2D30811100909ABE /* Debug */,
+				B560361F2D30811100909ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B56036202D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B56036212D30811100909ABE /* Debug */,
+				B56036222D30811100909ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B56036232D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcastTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B56036242D30811100909ABE /* Debug */,
+				B56036252D30811100909ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B56036262D30811100909ABE /* Build configuration list for PBXNativeTarget "flowcastUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B56036272D30811100909ABE /* Debug */,
+				B56036282D30811100909ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tomtom-international/tomtom-sdk-spm-core";
+			requirement = {
+				kind = exactVersion;
+				version = 0.67.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B52B8D722D30862500A988DB /* TomTomSDKBindingFrameworkHTTPInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */;
+			productName = TomTomSDKBindingFrameworkHTTPInternal;
+		};
+		B52B8D742D30862500A988DB /* TomTomSDKBindingFrameworkLoggingInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */;
+			productName = TomTomSDKBindingFrameworkLoggingInternal;
+		};
+		B52B8D762D30862500A988DB /* TomTomSDKBindingMapDisplayEngineInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */;
+			productName = TomTomSDKBindingMapDisplayEngineInternal;
+		};
+		B52B8D782D30862500A988DB /* TomTomSDKBindingTrafficTileGeneratorInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */;
+			productName = TomTomSDKBindingTrafficTileGeneratorInternal;
+		};
+		B52B8D7A2D30862500A988DB /* TomTomSDKCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52B8D712D30862500A988DB /* XCRemoteSwiftPackageReference "tomtom-sdk-spm-core" */;
+			productName = TomTomSDKCommon;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B56035F42D30810F00909ABE /* Project object */;
+}
