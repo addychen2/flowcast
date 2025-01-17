@@ -48,14 +48,12 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         location = locations.last
         if let location = location {
-            print("Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude)")
             NotificationCenter.default.post(name: .locationDidUpdate, object: location)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         heading = newHeading
-        print("Heading updated: \(newHeading.trueHeading) degrees")
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

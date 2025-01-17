@@ -7,28 +7,33 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            TextField("Search destination", text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onSubmit {
-                    onSubmit()
-                }
-                .submitLabel(.search)  // Shows search on keyboard
-                .autocorrectionDisabled()  // Disable autocorrection
-            
-            if !text.isEmpty {
-                Button(action: {
-                    text = ""
-                    isActive = false
-                    // Dismiss keyboard
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                 to: nil, from: nil, for: nil)
-                }) {
-                    Image(systemName: "xmark.circle.fill")
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                    .padding(.leading, 8)
+                
+                TextField("Search destination", text: $text)
+                    .submitLabel(.search)
+                    .autocorrectionDisabled()
+                
+                if !text.isEmpty {
+                    Button(action: {
+                        text = ""
+                        isActive = false
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                     to: nil, from: nil, for: nil)
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 8)
+                    }
                 }
             }
+            .padding(.vertical, 12)
+            .background(Color(.systemBackground))
+            .cornerRadius(10)
+            .shadow(color: Color.black.opacity(0.2), radius: 2)
         }
         .padding(.horizontal)
-        .background(Color.white)
-        .cornerRadius(10)
     }
 }

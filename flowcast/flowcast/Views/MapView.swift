@@ -3,12 +3,13 @@ import MapKit
 
 struct MapView: UIViewRepresentable {
     @ObservedObject var routeManager: RouteManager
+    @Binding var mapType: MKMapType
     
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapView
         var previousState: Bool = false
-        var navigationCamera: MKMapCamera?
         var mapView: MKMapView?
+        private var isInitialSetup = true
         
         init(_ parent: MapView) {
             self.parent = parent
@@ -18,7 +19,7 @@ struct MapView: UIViewRepresentable {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
                 renderer.strokeColor = .systemBlue
-                renderer.lineWidth = 5
+                renderer.lineWidth = 8
                 return renderer
             }
             return MKOverlayRenderer(overlay: overlay)
@@ -27,74 +28,64 @@ struct MapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             if annotation is MKUserLocation {
                 let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
-                annotationView.image = UIImage(systemName: "location.north.fill")?
-                    .withTintColor(.blue, renderingMode: .alwaysOriginal)
+                
+                // Custom arrow image for user location
+                let size = CGSize(width: 40, height: 40)
+                let renderer = UIGraphicsImageRenderer(size: size)
+                let arrowImage = renderer.image { context in
+                    let rect = CGRect(origin: .zero, size: size)
+                    
+                    // Draw white circle background
+                    UIColor.white.setFill()
+                    let circlePath = UIBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
+                    circlePath.fill()
+                    
+                    // Draw blue arrow
+                    UIColor.systemBlue.setFill()
+                    let arrowPath = UIBezierPath()
+                    arrowPath.move(to: CGPoint(x: size.width/2, y: 5))
+                    arrowPath.addLine(to: CGPoint(x: size.width - 10, y: size.height - 10))
+                    arrowPath.addLine(to: CGPoint(x: size.width/2, y: size.height - 15))
+                    arrowPath.addLine(to: CGPoint(x: 10, y: size.height - 10))
+                    arrowPath.close()
+                    arrowPath.fill()
+                }
+                
+                annotationView.image = arrowImage
                 return annotationView
             }
             return nil
         }
         
-        // Add delegate method for when user tracking mode changes
-        func mapView(_ mapView: MKMapView, didChange mode: MKUserTrackingMode, animated: Bool) {
-            print("Tracking mode changed to: \(mode.rawValue)")
-            // If we're in navigation mode but not in followWithHeading, reset it
-            if parent.routeManager.isNavigating && mode != .followWithHeading {
-                mapView.setUserTrackingMode(.followWithHeading, animated: true)
-            }
-        }
-        
         func setupNavigationMode(_ mapView: MKMapView) {
-            print("Entering navigation mode")
             self.mapView = mapView
-            mapView.setUserTrackingMode(.followWithHeading, animated: false)
-            
-            // Set close zoom
-            let region = MKCoordinateRegion(
-                center: mapView.userLocation.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-            )
-            mapView.setRegion(region, animated: false)
-            
-            // Lock the zoom
-            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: region)
-            mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 250,
-                                                              maxCenterCoordinateDistance: 250)
-        }
-        
-        func setupPreviewMode(_ mapView: MKMapView) {
-            print("Exiting navigation mode")
-            // Remove navigation constraints
-            mapView.cameraBoundary = nil
-            mapView.cameraZoomRange = nil
-            navigationCamera = nil
-            
-            mapView.setUserTrackingMode(.follow, animated: false)
-            
-            let defaultSpan = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            let userRegion = MKCoordinateRegion(
-                center: mapView.userLocation.coordinate,
-                span: defaultSpan
-            )
-            mapView.setRegion(userRegion, animated: true)
+            mapView.showsCompass = false
+            mapView.setUserTrackingMode(.followWithHeading, animated: true)
         }
         
         func recenterInNavigationMode() {
             guard let mapView = mapView else { return }
-            
-            // Force re-enable follow with heading mode
             mapView.setUserTrackingMode(.followWithHeading, animated: true)
+        }
+        
+        func setupPreviewMode(_ mapView: MKMapView) {
+            mapView.setUserTrackingMode(.none, animated: true)
             
-            // Set close zoom
+            let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
             let region = MKCoordinateRegion(
                 center: mapView.userLocation.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
+                span: span
             )
             mapView.setRegion(region, animated: true)
-            
-            // Reset the zoom constraints
-            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: region)
-            mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 250,
-                                                              maxCenterCoordinateDistance: 250)
+        }
+        
+        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+            if isInitialSetup {
+                let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                let region = MKCoordinateRegion(center: userLocation.coordinate, span: span)
+                mapView.setRegion(region, animated: false)
+                isInitialSetup = false
+            }
         }
     }
     
@@ -106,42 +97,34 @@ struct MapView: UIViewRepresentable {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
-        mapView.userTrackingMode = .follow
+        mapView.showsCompass = false
         
-        // Customize map appearance
-        mapView.pointOfInterestFilter = .excludingAll
+        // Map appearance
+        mapView.pointOfInterestFilter = .includingAll
         mapView.showsBuildings = true
         mapView.showsTraffic = true
-        mapView.isRotateEnabled = true
-        
-        // Set initial view with default zoom
-        if let userLocation = routeManager.locationManager?.location?.coordinate {
-            let defaultSpan = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            let region = MKCoordinateRegion(
-                center: userLocation,
-                span: defaultSpan
-            )
-            mapView.setRegion(region, animated: false)
-        }
         
         return mapView
     }
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Handle route overlay updates
+        // Update map type
+        mapView.mapType = mapType
+        
+        // Route overlay
         mapView.removeOverlays(mapView.overlays)
         if let route = routeManager.route {
             mapView.addOverlay(route.polyline)
         }
         
-        // Handle recenter request
+        // Handle recenter
         if routeManager.shouldRecenter {
             context.coordinator.recenterInNavigationMode()
             routeManager.shouldRecenter = false
             return
         }
         
-        // Only handle changes in navigation state
+        // Navigation state changes
         if routeManager.isNavigating != context.coordinator.previousState {
             context.coordinator.previousState = routeManager.isNavigating
             

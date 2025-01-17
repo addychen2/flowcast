@@ -1,122 +1,93 @@
 import SwiftUI
 import MapKit
 
+extension View {
+    func configureTabBar() -> some View {
+        self.onAppear {
+            let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithDefaultBackground()
+            tabBarAppearance.backgroundColor = .black
+            
+            // Configure unselected tab appearance
+            tabBarAppearance.stackedLayoutAppearance.normal.iconColor = .gray
+            tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+                .foregroundColor: UIColor.gray
+            ]
+            
+            // Configure selected tab appearance
+            tabBarAppearance.stackedLayoutAppearance.selected.iconColor = .white
+            tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+                .foregroundColor: UIColor.white
+            ]
+            
+            UITabBar.appearance().standardAppearance = tabBarAppearance
+            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var locationManager: LocationManager
     @StateObject private var routeManager: RouteManager
-    
+    @State private var selectedTab = 0
+    @State private var mapType: MKMapType = .standard
     @State private var searchText = ""
     @State private var showSearchResults = false
     @State private var destinations: [MKMapItem] = []
+    @State private var showStepsList: Bool = false
+    @State private var selectedDestination: MKMapItem?
     
     init() {
         let locationManager = LocationManager()
         _locationManager = StateObject(wrappedValue: locationManager)
         _routeManager = StateObject(wrappedValue: RouteManager(locationManager: locationManager))
-        
-        // Request authorization and start updating location
         locationManager.requestAuthorization()
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            MapView(routeManager: routeManager)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    // Dismiss keyboard
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                 to: nil, from: nil, for: nil)
-                    showSearchResults = false
-                }
-            
-            VStack(spacing: 0) {
-                Group {
-                    if routeManager.isNavigating, let step = routeManager.currentNavigationStep {
-                        NavigationHeaderView(
-                            step: step,
-                            destination: routeManager.destinationName ?? "Destination",
-                            estimatedTime: routeManager.route?.expectedTravelTime,
-                            totalDistance: routeManager.route?.distance
-                        )
-                    } else {
-                        SearchBar(text: $searchText, isActive: $showSearchResults) {
-                            searchLocation()
-                        }
-                        .padding()
-                    }
-                }
-                
-                if showSearchResults {
-                    SearchResultsView(destinations: destinations) { destination in
-                        routeManager.setDestination(destination)
-                        showSearchResults = false
-                        searchText = ""
-                    }
-                }
-                
-                Spacer()
-                
-                if let route = routeManager.route, !routeManager.isNavigating {
-                    RoutePreviewView(route: route) {
-                        routeManager.startNavigation()
-                    }
-                }
+        TabView(selection: $selectedTab) {
+            // Navigation View
+            NavigationView {
+                MapContainerView(
+                    routeManager: routeManager,
+                    mapType: $mapType,
+                    searchText: $searchText,
+                    showSearchResults: $showSearchResults,
+                    destinations: $destinations,
+                    showStepsList: $showStepsList,
+                    selectedDestination: $selectedDestination
+                )
             }
+            .tabItem {
+                Image(systemName: "map.fill")
+                Text("Navigation")
+            }
+            .tag(0)
             
-            if routeManager.isNavigating {
-                VStack {
-                    HStack {
-                        Button(action: {
-                            routeManager.endNavigation()
-                        }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(8)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .shadow(radius: 2)
-                        }
-                        .padding()
-                        
-                        Spacer()
-                    }
-                    Spacer()
-                    
-                    // Recenter button
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            routeManager.recenterOnUser()
-                        }) {
-                            Image(systemName: "location.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(8)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .shadow(radius: 2)
-                        }
-                        .padding()
-                    }
+            // Traffic Prediction View
+            TrafficPredictionView()
+                .tabItem {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                    Text("Traffic")
                 }
+                .tag(1)
+        }
+        .configureTabBar()
+        .sheet(isPresented: $showStepsList) {
+            if let route = routeManager.route {
+                NavigationStepsListView(
+                    route: route,
+                    currentStepIndex: routeManager.stepIndex,
+                    destination: routeManager.destinationName ?? "Destination",
+                    isPresented: $showStepsList
+                )
             }
         }
-        .onAppear {
-            locationManager.requestAuthorization()
-        }
-        .alert("Location Access Required",
-               isPresented: .constant(locationManager.authorizationStatus == .denied),
-               actions: {
-            Button("Open Settings") {
-                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(settingsURL)
-                }
+        .onChange(of: searchText) { newValue in
+            if !newValue.isEmpty {
+                searchLocation()
             }
-            Button("Cancel", role: .cancel) { }
-        }, message: {
-            Text("Please enable location access in Settings to use navigation features.")
-        })
+        }
     }
     
     private func searchLocation() {
@@ -129,6 +100,51 @@ struct ContentView: View {
             guard let response = response else { return }
             destinations = response.mapItems
             showSearchResults = true
+        }
+    }
+}
+
+struct MapContainerView: View {
+    @ObservedObject var routeManager: RouteManager
+    @Binding var mapType: MKMapType
+    @Binding var searchText: String
+    @Binding var showSearchResults: Bool
+    @Binding var destinations: [MKMapItem]
+    @Binding var showStepsList: Bool
+    @Binding var selectedDestination: MKMapItem?
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            MapView(routeManager: routeManager, mapType: $mapType)
+                .edgesIgnoringSafeArea(.all)
+            
+            if routeManager.isNavigating {
+                NavigationHeaderContent(routeManager: routeManager, showStepsList: $showStepsList)
+            } else {
+                SearchContent(
+                    searchText: $searchText,
+                    showSearchResults: $showSearchResults,
+                    destinations: destinations,
+                    selectedDestination: $selectedDestination,
+                    routeManager: routeManager
+                )
+            }
+            
+            MapControlsContent(
+                routeManager: routeManager,
+                mapType: $mapType
+            )
+            
+            if let route = routeManager.route,
+               !routeManager.isNavigating,
+               let selectedDestination = selectedDestination {
+                RoutePreviewContent(
+                    route: route,
+                    selectedDestination: selectedDestination,
+                    routeManager: routeManager,
+                    showStepsList: $showStepsList
+                )
+            }
         }
     }
 }

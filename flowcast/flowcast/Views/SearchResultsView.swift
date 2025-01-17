@@ -7,27 +7,44 @@ struct SearchResultsView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(destinations, id: \.hash) { destination in
+            LazyVStack(spacing: 0) {
+                ForEach(destinations, id: \.self) { destination in
                     Button(action: {
+                        // Dismiss keyboard
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                     to: nil, from: nil, for: nil)
                         onSelect(destination)
                     }) {
-                        VStack(alignment: .leading) {
-                            Text(destination.name ?? "Unknown location")
-                                .font(.headline)
-                            if let address = destination.placemark.thoroughfare {
-                                Text(address)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                        HStack(spacing: 16) {
+                            Image(systemName: "mappin.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(.red)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(destination.name ?? "Unknown location")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.primary)
+                                if let address = destination.placemark.thoroughfare {
+                                    Text(address)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.gray)
+                                }
                             }
+                            Spacer()
                         }
+                        .padding()
+                    }
+                    
+                    if destination != destinations.last {
+                        Divider()
+                            .padding(.leading, 56)
                     }
                 }
             }
-            .padding(.vertical, 8)
         }
-        .background(Color.white)
+        .background(Color(.systemBackground))
         .cornerRadius(10)
+        .shadow(radius: 2)
         .padding(.horizontal)
     }
 }

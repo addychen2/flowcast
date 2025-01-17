@@ -8,9 +8,9 @@ class RouteManager: ObservableObject {
     @Published var destinationName: String?
     @Published var isNavigating: Bool = false
     @Published var shouldRecenter: Bool = false
+    @Published var stepIndex: Int = 0 // Made public
     
     weak var locationManager: LocationManager?
-    private var stepIndex = 0
     
     init(locationManager: LocationManager) {
         self.locationManager = locationManager
