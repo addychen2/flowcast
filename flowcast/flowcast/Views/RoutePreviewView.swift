@@ -3,73 +3,101 @@ import MapKit
 
 struct RoutePreviewView: View {
     let route: MKRoute
+    let source: MKMapItem
+    let destinationItem: MKMapItem
+    let destination: String
     let onStartNavigation: () -> Void
+    @Binding var showStepsList: Bool
+    @StateObject private var routeOptionsManager = RouteOptionsManager()
     
     var body: some View {
         VStack(spacing: 0) {
-            // Route info
-            HStack(spacing: 24) {
-                // Time
-                HStack(spacing: 4) {
-                    Image(systemName: "clock.fill")
-                        .foregroundColor(.black.opacity(0.6))
-                    Text("\(formatDuration(route.expectedTravelTime))")
-                        .font(.system(size: 24, weight: .medium))
+            // Route info card
+            VStack(spacing: 16) {
+                HStack {
+                    Text(formatDuration(route.expectedTravelTime))
+                        .font(.system(size: 24, weight: .semibold))
+                    Text("(\(formatDistance(route.distance)))")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                    Spacer()
                 }
                 
-                // Separator
-                Rectangle()
-                    .frame(width: 1, height: 24)
-                    .foregroundColor(.gray.opacity(0.3))
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Fastest route")
+                            .font(.system(size: 16, weight: .medium))
+                        if !route.advisoryNotices.isEmpty {
+                            Text(route.advisoryNotices[0])
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
                 
-                // Distance
-                HStack(spacing: 4) {
-                    Image(systemName: "map.fill")
-                        .foregroundColor(.black.opacity(0.6))
-                    Text(formatDistance(route.distance))
-                        .font(.system(size: 24, weight: .medium))
+                HStack(spacing: 24) {
+                    Button(action: onStartNavigation) {
+                        Text("Start")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 120)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(24)
+                    }
+                    
+                    Button(action: { showStepsList = true }) {
+                        HStack {
+                            Image(systemName: "list.bullet")
+                            Text("Steps")
+                        }
+                        .font(.system(size: 16))
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(24)
+                    }
+                    
+                    Button(action: {}) {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 20))
+                            .foregroundColor(.gray)
+                            .padding(8)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
                 }
             }
-            .padding(.vertical, 12)
-            
-            Divider()
-            
-            // Start button
-            Button(action: onStartNavigation) {
-                Text("Start")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.blue)
-                    .cornerRadius(8)
-            }
+            .padding(16)
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(radius: 2)
             .padding(.horizontal)
-            .padding(.vertical, 12)
+            .padding(.bottom, 8)
         }
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 5, y: -2)
-        .padding(.horizontal)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration / 60)
-        let hours = minutes / 60
-        if hours > 0 {
+        if minutes >= 60 {
+            let hours = minutes / 60
             let remainingMinutes = minutes % 60
-            if remainingMinutes > 0 {
-                return "\(hours) h \(remainingMinutes) min"
+            if remainingMinutes == 0 {
+                return "\(hours) hr"
             }
-            return "\(hours) h"
+            return "\(hours) hr \(remainingMinutes) min"
         }
         return "\(minutes) min"
     }
     
     private func formatDistance(_ distance: CLLocationDistance) -> String {
-        if distance >= 1000 {
-            return String(format: "%.1f km", distance / 1000)
+        let miles = distance / 1609.34
+        if miles < 0.1 {
+            let feet = Int(distance * 3.28084)
+            return "\(feet) ft"
         }
-        return String(format: "%.0f m", distance)
+        return String(format: "%.1f mi", miles)
     }
 }
