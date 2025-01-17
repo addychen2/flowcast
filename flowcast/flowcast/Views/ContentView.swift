@@ -46,7 +46,15 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Navigation View
+            // Traffic View (now first)
+            TrafficPredictionView()
+                .tabItem {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                    Text("Traffic")
+                }
+                .tag(0)
+            
+            // Navigation View (now second)
             NavigationView {
                 MapContainerView(
                     routeManager: routeManager,
@@ -62,15 +70,7 @@ struct ContentView: View {
                 Image(systemName: "map.fill")
                 Text("Navigation")
             }
-            .tag(0)
-            
-            // Traffic Prediction View
-            TrafficPredictionView()
-                .tabItem {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text("Traffic")
-                }
-                .tag(1)
+            .tag(1)
         }
         .configureTabBar()
         .sheet(isPresented: $showStepsList) {
