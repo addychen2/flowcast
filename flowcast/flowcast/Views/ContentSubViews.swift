@@ -44,6 +44,7 @@ struct SearchContent: View {
     let destinations: [MKMapItem]
     @Binding var selectedDestination: MKMapItem?
     @ObservedObject var routeManager: RouteManager
+    let trafficManager: TrafficManager  // Changed to let instead of @ObservedObject
     
     var body: some View {
         VStack {
@@ -56,6 +57,9 @@ struct SearchContent: View {
                 SearchResultsView(destinations: destinations) { destination in
                     selectedDestination = destination
                     routeManager.setDestination(destination)
+                    Task {
+                        await trafficManager.generateTrafficForSearchedLocation(destination.placemark.coordinate)
+                    }
                     showSearchResults = false
                     searchText = ""
                 }

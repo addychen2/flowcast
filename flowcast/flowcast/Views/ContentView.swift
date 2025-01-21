@@ -26,9 +26,62 @@ extension View {
     }
 }
 
+struct MapContainerView: View {
+    @ObservedObject var routeManager: RouteManager
+    @ObservedObject var trafficManager: TrafficManager
+    @Binding var mapType: MKMapType
+    @Binding var searchText: String
+    @Binding var showSearchResults: Bool
+    @Binding var destinations: [MKMapItem]
+    @Binding var showStepsList: Bool
+    @Binding var selectedDestination: MKMapItem?
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            MapView(routeManager: routeManager,
+                   trafficManager: trafficManager,
+                   mapType: $mapType)
+                .edgesIgnoringSafeArea(.all)
+            
+            if routeManager.isNavigating {
+                NavigationHeaderContent(
+                    routeManager: routeManager,
+                    showStepsList: $showStepsList
+                )
+            } else {
+                SearchContent(
+                    searchText: $searchText,
+                    showSearchResults: $showSearchResults,
+                    destinations: destinations,
+                    selectedDestination: $selectedDestination,
+                    routeManager: routeManager,
+                    trafficManager: trafficManager
+                )
+            }
+            
+            MapControlsContent(
+                routeManager: routeManager,
+                mapType: $mapType
+            )
+            
+            if let route = routeManager.route,
+               !routeManager.isNavigating,
+               let selectedDestination = selectedDestination {
+                RoutePreviewContent(
+                    route: route,
+                    selectedDestination: selectedDestination,
+                    routeManager: routeManager,
+                    showStepsList: $showStepsList
+                )
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var locationManager: LocationManager
     @StateObject private var routeManager: RouteManager
+    @StateObject private var trafficManager: TrafficManager
     @State private var selectedTab = 0
     @State private var mapType: MKMapType = .standard
     @State private var searchText = ""
@@ -41,23 +94,24 @@ struct ContentView: View {
         let locationManager = LocationManager()
         _locationManager = StateObject(wrappedValue: locationManager)
         _routeManager = StateObject(wrappedValue: RouteManager(locationManager: locationManager))
+        _trafficManager = StateObject(wrappedValue: TrafficManager(locationManager: locationManager))
         locationManager.requestAuthorization()
     }
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Traffic View (now first)
             TrafficPredictionView()
+                .environmentObject(trafficManager)
                 .tabItem {
                     Image(systemName: "exclamationmark.triangle.fill")
                     Text("Traffic")
                 }
                 .tag(0)
             
-            // Navigation View (now second)
             NavigationView {
                 MapContainerView(
                     routeManager: routeManager,
+                    trafficManager: trafficManager,
                     mapType: $mapType,
                     searchText: $searchText,
                     showSearchResults: $showSearchResults,
@@ -104,47 +158,6 @@ struct ContentView: View {
     }
 }
 
-struct MapContainerView: View {
-    @ObservedObject var routeManager: RouteManager
-    @Binding var mapType: MKMapType
-    @Binding var searchText: String
-    @Binding var showSearchResults: Bool
-    @Binding var destinations: [MKMapItem]
-    @Binding var showStepsList: Bool
-    @Binding var selectedDestination: MKMapItem?
-    
-    var body: some View {
-        ZStack(alignment: .top) {
-            MapView(routeManager: routeManager, mapType: $mapType)
-                .edgesIgnoringSafeArea(.all)
-            
-            if routeManager.isNavigating {
-                NavigationHeaderContent(routeManager: routeManager, showStepsList: $showStepsList)
-            } else {
-                SearchContent(
-                    searchText: $searchText,
-                    showSearchResults: $showSearchResults,
-                    destinations: destinations,
-                    selectedDestination: $selectedDestination,
-                    routeManager: routeManager
-                )
-            }
-            
-            MapControlsContent(
-                routeManager: routeManager,
-                mapType: $mapType
-            )
-            
-            if let route = routeManager.route,
-               !routeManager.isNavigating,
-               let selectedDestination = selectedDestination {
-                RoutePreviewContent(
-                    route: route,
-                    selectedDestination: selectedDestination,
-                    routeManager: routeManager,
-                    showStepsList: $showStepsList
-                )
-            }
-        }
-    }
+#Preview {
+    ContentView()
 }
