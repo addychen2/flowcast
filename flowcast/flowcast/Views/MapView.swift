@@ -3,6 +3,7 @@ import MapKit
 
 struct MapView: UIViewRepresentable {
     @ObservedObject var routeManager: RouteManager
+    @ObservedObject var trafficManager: TrafficManager
     @Binding var mapType: MKMapType
     
     class Coordinator: NSObject, MKMapViewDelegate {
@@ -10,55 +11,114 @@ struct MapView: UIViewRepresentable {
         var previousState: Bool = false
         var mapView: MKMapView?
         private var isInitialSetup = true
+        private var currentTrafficOverlays: [TrafficOverlay] = []
+        private var currentVehicleAnnotations: [VehicleAnnotation] = []
         
         init(_ parent: MapView) {
             self.parent = parent
         }
         
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let trafficOverlay = overlay as? TrafficOverlay {
+                return mapView.updateTrafficRenderer(for: trafficOverlay)
+            }
+            
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
                 renderer.strokeColor = .systemBlue
                 renderer.lineWidth = 8
                 return renderer
             }
+            
             return MKOverlayRenderer(overlay: overlay)
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            if let vehicleAnnotation = annotation as? VehicleAnnotation {
+                return mapView.updateVehicleAnnotationView(for: vehicleAnnotation)
+            }
+            
             if annotation is MKUserLocation {
                 let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "userLocation")
                 
+                // Size for your user location indicator
                 let size = CGSize(width: 40, height: 40)
                 let renderer = UIGraphicsImageRenderer(size: size)
-                let arrowImage = renderer.image { context in
+                let locationImage = renderer.image { context in
                     let rect = CGRect(origin: .zero, size: size)
                     
+                    // Outer white circle
                     UIColor.white.setFill()
-                    let circlePath = UIBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
-                    circlePath.fill()
+                    UIBezierPath(ovalIn: rect).fill()
                     
+                    // Inner blue circle
                     UIColor.systemBlue.setFill()
-                    let arrowPath = UIBezierPath()
-                    arrowPath.move(to: CGPoint(x: size.width/2, y: 5))
-                    arrowPath.addLine(to: CGPoint(x: size.width - 10, y: size.height - 10))
-                    arrowPath.addLine(to: CGPoint(x: size.width/2, y: size.height - 15))
-                    arrowPath.addLine(to: CGPoint(x: 10, y: size.height - 10))
-                    arrowPath.close()
-                    arrowPath.fill()
+                    let innerRect = rect.insetBy(dx: 4, dy: 4)
+                    UIBezierPath(ovalIn: innerRect).fill()
+                    
+                    // White accuracy ring
+                    UIColor.white.setStroke()
+                    let ringPath = UIBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
+                    ringPath.lineWidth = 2
+                    ringPath.stroke()
                 }
                 
-                annotationView.image = arrowImage
+                annotationView.image = locationImage
                 return annotationView
             }
+            
             return nil
+        }
+        
+        func updateTrafficVisualization(_ mapView: MKMapView) {
+            // Remove existing traffic visualization
+            mapView.removeOverlays(currentTrafficOverlays)
+            mapView.removeAnnotations(currentVehicleAnnotations)
+            currentTrafficOverlays.removeAll()
+            currentVehicleAnnotations.removeAll()
+            
+            // Add new traffic overlays and vehicles
+            for segment in parent.trafficManager.currentTrafficSegments {
+                let overlay = TrafficOverlay.polyline(
+                    coordinates: segment.coordinates,
+                    count: segment.coordinates.count,
+                    congestionLevel: segment.congestionLevel
+                )
+                currentTrafficOverlays.append(overlay)
+                mapView.addOverlay(overlay)
+                
+                // Add vehicle annotations
+                addVehicleAnnotations(mapView, for: segment)
+            }
+        }
+        
+        private func addVehicleAnnotations(_ mapView: MKMapView, for segment: TrafficSegment) {
+            guard segment.coordinates.count >= 2 else { return }
+            
+            let start = segment.coordinates[0]
+            let end = segment.coordinates[1]
+            let direction = atan2(end.longitude - start.longitude,
+                                end.latitude - start.latitude) * 180 / .pi
+            
+            for i in 0..<segment.vehicleCount {
+                let progress = Double(i) / Double(segment.vehicleCount - 1)
+                let latitude = start.latitude + (end.latitude - start.latitude) * progress
+                let longitude = start.longitude + (end.longitude - start.longitude) * progress
+                
+                let vehicle = VehicleAnnotation(
+                    coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                    direction: direction,
+                    congestionLevel: segment.congestionLevel
+                )
+                currentVehicleAnnotations.append(vehicle)
+                mapView.addAnnotation(vehicle)
+            }
         }
         
         func setupNavigationMode(_ mapView: MKMapView) {
             self.mapView = mapView
             mapView.showsCompass = false
             
-            // Instead of using userTrackingMode, we'll observe location and heading changes
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(locationOrHeadingDidUpdate),
@@ -69,11 +129,10 @@ struct MapView: UIViewRepresentable {
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(locationOrHeadingDidUpdate),
-                name: .headingDidUpdate, // You'll need to add this notification
+                name: .headingDidUpdate,
                 object: nil
             )
             
-            // Initial camera setup
             if let location = parent.routeManager.locationManager?.location {
                 updateCamera(with: location, heading: parent.routeManager.locationManager?.heading?.trueHeading ?? 0)
             }
@@ -87,15 +146,20 @@ struct MapView: UIViewRepresentable {
             updateCamera(with: location, heading: heading)
         }
         
+        func recenterInNavigationMode() {
+            guard let location = parent.routeManager.locationManager?.location,
+                  let heading = parent.routeManager.locationManager?.heading?.trueHeading else { return }
+            
+            updateCamera(with: location, heading: heading)
+        }
+        
         private func updateCamera(with location: CLLocation, heading: CLLocationDirection) {
             guard let mapView = mapView else { return }
             
-            // Calculate a point ahead of the user's location
-            let metersAhead: CLLocationDistance = 50  // Distance to look ahead
-            let bearing = heading * .pi / 180  // Convert to radians
+            let metersAhead: CLLocationDistance = 50
+            let bearing = heading * .pi / 180
             
-            // Calculate the coordinate to center on
-            let earthRadius: Double = 6371000  // Earth's radius in meters
+            let earthRadius: Double = 6371000
             let angularDistance = metersAhead / earthRadius
             
             let lat1 = location.coordinate.latitude * .pi / 180
@@ -106,28 +170,19 @@ struct MapView: UIViewRepresentable {
             let lon2 = lon1 + atan2(sin(bearing) * sin(angularDistance) * cos(lat1),
                                   cos(angularDistance) - sin(lat1) * sin(lat2))
             
-            // Convert back to degrees
             let centerCoordinate = CLLocationCoordinate2D(
                 latitude: lat2 * 180 / .pi,
                 longitude: lon2 * 180 / .pi
             )
             
-            // Create camera with offset center point
             let camera = MKMapCamera(
                 lookingAtCenter: centerCoordinate,
-                fromDistance: 300,  // Zoomed in view
+                fromDistance: 300,
                 pitch: 60,
                 heading: heading
             )
             
             mapView.setCamera(camera, animated: true)
-        }
-        
-        func recenterInNavigationMode() {
-            guard let location = parent.routeManager.locationManager?.location,
-                  let heading = parent.routeManager.locationManager?.heading?.trueHeading else { return }
-            
-            updateCamera(with: location, heading: heading)
         }
         
         func setupPreviewMode(_ mapView: MKMapView) {
@@ -166,14 +221,22 @@ struct MapView: UIViewRepresentable {
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .includingAll
         mapView.showsBuildings = true
-        mapView.showsTraffic = true
+        mapView.showsTraffic = false
+        
+        // Initial traffic visualization
+        context.coordinator.updateTrafficVisualization(mapView)
+        
         return mapView
     }
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
         mapView.mapType = mapType
         
-        mapView.removeOverlays(mapView.overlays)
+        // Update traffic visualization
+        context.coordinator.updateTrafficVisualization(mapView)
+        
+        // Handle route overlays
+        mapView.removeOverlays(mapView.overlays.filter { !($0 is TrafficOverlay) })
         if let route = routeManager.route {
             mapView.addOverlay(route.polyline)
         }

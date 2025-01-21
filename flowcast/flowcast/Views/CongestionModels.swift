@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum CongestionLevel: String {
+enum CongestionLevel: String, CaseIterable {
     case low = "Low"
     case moderate = "Moderate"
     case heavy = "Heavy"

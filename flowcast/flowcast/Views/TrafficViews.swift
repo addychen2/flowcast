@@ -1,7 +1,121 @@
 import SwiftUI
+import MapKit
 
+// Stars background effect
+struct StarsOverlay: View {
+    var body: some View {
+        GeometryReader { geometry in
+            ForEach(0..<100) { _ in
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 1, height: 1)
+                    .position(
+                        x: CGFloat.random(in: 0...geometry.size.width),
+                        y: CGFloat.random(in: 0...geometry.size.height)
+                    )
+                    .opacity(Double.random(in: 0.1...0.5))
+            }
+        }
+    }
+}
+
+// Hourly traffic scroll view
+struct HourlyTrafficScrollView: View {
+    let hours: [(String, Double)]
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            ForEach(hours, id: \.0) { hour, congestion in
+                VStack(spacing: 8) {
+                    Text(hour)
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                    
+                    Image(systemName: getTrafficIcon(for: congestion))
+                        .font(.system(size: 24))
+                        .foregroundColor(getTrafficColor(for: congestion))
+                    
+                    Text("\(Int(congestion))%")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 60)
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+    
+    private func getTrafficIcon(for congestion: Double) -> String {
+        if congestion < 40 { return "car" }
+        if congestion < 70 { return "car.fill" }
+        return "exclamationmark.triangle.fill"
+    }
+    
+    private func getTrafficColor(for congestion: Double) -> Color {
+        if congestion < 40 { return .green }
+        if congestion < 70 { return .orange }
+        return .red
+    }
+}
+
+// Daily traffic row
+struct DailyTrafficRow: View {
+    let prediction: TrafficPrediction
+    
+    var body: some View {
+        HStack {
+            Text(prediction.dayName)
+                .font(.system(size: 20))
+                .foregroundColor(.white)
+                .frame(width: 120, alignment: .leading)
+            
+            Spacer()
+            
+            HStack(spacing: 12) {
+                TrafficIndicator(level: prediction.morning)
+                TrafficIndicator(level: prediction.afternoon)
+                TrafficIndicator(level: prediction.evening)
+            }
+        }
+    }
+}
+
+// Traffic indicator
+struct TrafficIndicator: View {
+    let level: CongestionLevel
+    
+    var body: some View {
+        HStack {
+            Image(systemName: getIcon())
+                .foregroundColor(getColor())
+        }
+        .frame(width: 40)
+    }
+    
+    private func getIcon() -> String {
+        switch level {
+        case .low: return "car"
+        case .moderate: return "car.fill"
+        case .heavy: return "exclamationmark.triangle.fill"
+        }
+    }
+    
+    private func getColor() -> Color {
+        switch level {
+        case .low: return .green
+        case .moderate: return .orange
+        case .heavy: return .red
+        }
+    }
+}
+
+// Main traffic prediction view
 struct TrafficPredictionView: View {
     @StateObject private var trafficManager = TrafficManager()
+    @State private var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 34.0292, longitude: -117.9686),
+        span: MKCoordinateSpan(latitudeDelta: 0.3, longitudeDelta: 0.3)
+    )
     
     var body: some View {
         ZStack {
@@ -52,6 +166,10 @@ struct TrafficPredictionView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 44)
                     
+                    // Traffic Map Widget
+                    TrafficMapWidget(trafficManager: trafficManager)
+                        .frame(height: 320)
+                    
                     // Hourly traffic forecast
                     VStack(alignment: .leading, spacing: 16) {
                         Text("HOURLY TRAFFIC")
@@ -100,106 +218,159 @@ struct TrafficPredictionView: View {
     }
 }
 
-struct HourlyTrafficScrollView: View {
-    let hours: [(String, Double)]
+struct TrafficMapWidget: View {
+    let trafficManager: TrafficManager
     
     var body: some View {
-        HStack(spacing: 20) {
-            ForEach(hours, id: \.0) { hour, congestion in
-                VStack(spacing: 8) {
-                    Text(hour)
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                    
-                    Image(systemName: getTrafficIcon(for: congestion))
-                        .font(.system(size: 24))
-                        .foregroundColor(getTrafficColor(for: congestion))
-                    
-                    Text("\(Int(congestion))%")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+        VStack(alignment: .leading, spacing: 8) {
+            // Header
+            HStack {
+                Image(systemName: "car.fill")
+                    .foregroundColor(.gray)
+                Text("TRAFFIC")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.gray)
+                    .tracking(1.5)
+            }
+            .padding(.horizontal)
+            
+            // Map container
+            ZStack {
+                // Base map with dark mode styling
+                TrafficMapView(trafficManager: trafficManager)
+                    .cornerRadius(12)
+                
+                // Traffic overlay legend
+                VStack {
+                    Spacer()
+                    HStack(spacing: 16) {
+                        ForEach(CongestionLevel.allCases, id: \.self) { level in
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(level.color.opacity(0.6))
+                                    .frame(width: 8, height: 8)
+                                Text(level.rawValue)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                    .padding(8)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(8)
+                    .padding(.bottom, 8)
                 }
-                .frame(width: 60)
+                .padding(.horizontal)
             }
         }
-        .padding(.horizontal, 4)
-    }
-    
-    private func getTrafficIcon(for congestion: Double) -> String {
-        if congestion < 40 { return "car" }
-        if congestion < 70 { return "car.fill" }
-        return "exclamationmark.triangle.fill"
-    }
-    
-    private func getTrafficColor(for congestion: Double) -> Color {
-        if congestion < 40 { return .green }
-        if congestion < 70 { return .orange }
-        return .red
+        .background(Color(.systemBackground).opacity(0.1))
+        .cornerRadius(16)
+        .padding(.horizontal)
     }
 }
 
-struct DailyTrafficRow: View {
-    let prediction: TrafficPrediction
-    
-    var body: some View {
-        HStack {
-            Text(prediction.dayName)
-                .font(.system(size: 20))
-                .foregroundColor(.white)
-                .frame(width: 120, alignment: .leading)
-            
-            Spacer()
-            
-            HStack(spacing: 12) {
-                TrafficIndicator(level: prediction.morning)
-                TrafficIndicator(level: prediction.afternoon)
-                TrafficIndicator(level: prediction.evening)
-            }
-        }
-    }
-}
+struct TrafficMapView: UIViewRepresentable {
+    let trafficManager: TrafficManager
 
-struct TrafficIndicator: View {
-    let level: CongestionLevel
-    
-    var body: some View {
-        HStack {
-            Image(systemName: getIcon())
-                .foregroundColor(getColor())
-        }
-        .frame(width: 40)
+    func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView()
+        mapView.delegate = context.coordinator
+        
+        // Configure map appearance
+        mapView.overrideUserInterfaceStyle = .dark
+        mapView.pointOfInterestFilter = .includingAll
+        mapView.showsBuildings = true
+        mapView.showsTraffic = true  // Show Apple's built-in traffic while we develop our visualization
+        
+        // Set the region to show Hacienda Heights area - more zoomed in
+        let centerCoordinate = CLLocationCoordinate2D(latitude: 34.0292, longitude: -117.9686) // Hacienda Heights
+        let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05) // Much more zoomed in
+        let region = MKCoordinateRegion(center: centerCoordinate, span: span)
+        mapView.setRegion(region, animated: false)
+        
+        // Enable user interaction
+        mapView.isZoomEnabled = true
+        mapView.isScrollEnabled = true
+        mapView.isRotateEnabled = true
+        mapView.isPitchEnabled = true
+        
+        return mapView
     }
     
-    private func getIcon() -> String {
-        switch level {
-        case .low: return "car"
-        case .moderate: return "car.fill"
-        case .heavy: return "exclamationmark.triangle.fill"
+    func updateUIView(_ mapView: MKMapView, context: Context) {
+        // Remove existing overlays
+        mapView.removeOverlays(mapView.overlays)
+        
+        // Example road segments around Hacienda Heights
+        let roads = [
+            // Hacienda Blvd
+            [
+                CLLocationCoordinate2D(latitude: 34.0292, longitude: -117.9686),
+                CLLocationCoordinate2D(latitude: 34.0350, longitude: -117.9686)
+            ],
+            // Colima Rd
+            [
+                CLLocationCoordinate2D(latitude: 34.0292, longitude: -117.9600),
+                CLLocationCoordinate2D(latitude: 34.0292, longitude: -117.9750)
+            ],
+            // Gale Ave
+            [
+                CLLocationCoordinate2D(latitude: 34.0250, longitude: -117.9686),
+                CLLocationCoordinate2D(latitude: 34.0250, longitude: -117.9750)
+            ]
+        ]
+        
+        // Add traffic overlays for each road
+        for road in roads {
+            let congestion = CongestionLevel.allCases.randomElement() ?? .moderate
+            let overlay = TrafficOverlay.polyline(
+                coordinates: road,
+                count: road.count,
+                congestionLevel: congestion
+            )
+            mapView.addOverlay(overlay)
+        }
+        
+        // Also add any segments from trafficManager
+        for segment in trafficManager.currentTrafficSegments {
+            let overlay = TrafficOverlay.polyline(
+                coordinates: segment.coordinates,
+                count: segment.coordinates.count,
+                congestionLevel: segment.congestionLevel
+            )
+            mapView.addOverlay(overlay)
         }
     }
     
-    private func getColor() -> Color {
-        switch level {
-        case .low: return .green
-        case .moderate: return .orange
-        case .heavy: return .red
-        }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
     }
-}
-
-struct StarsOverlay: View {
-    var body: some View {
-        GeometryReader { geometry in
-            ForEach(0..<100) { _ in
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 1, height: 1)
-                    .position(
-                        x: CGFloat.random(in: 0...geometry.size.width),
-                        y: CGFloat.random(in: 0...geometry.size.height)
-                    )
-                    .opacity(Double.random(in: 0.1...0.5))
+    
+    class Coordinator: NSObject, MKMapViewDelegate {
+        var parent: TrafficMapView
+        
+        init(_ parent: TrafficMapView) {
+            self.parent = parent
+        }
+        
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let trafficOverlay = overlay as? TrafficOverlay {
+                let renderer = MKPolylineRenderer(overlay: trafficOverlay)
+                
+                switch trafficOverlay.congestionLevel {
+                case .low:
+                    renderer.strokeColor = .systemGreen
+                case .moderate:
+                    renderer.strokeColor = .systemOrange
+                case .heavy:
+                    renderer.strokeColor = .systemRed
+                }
+                
+                renderer.lineWidth = 4
+                renderer.alpha = 0.7
+                return renderer
             }
+            return MKOverlayRenderer(overlay: overlay)
         }
     }
 }
