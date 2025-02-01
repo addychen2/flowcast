@@ -15,6 +15,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var heading: CLHeading?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var error: Error?
+    private var hasInitializedLocation = false
     
     override init() {
         super.init()
@@ -25,12 +26,19 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.showsBackgroundLocationIndicator = true
         locationManager.pausesLocationUpdatesAutomatically = false
+        
+        // Get initial authorization status
+        authorizationStatus = locationManager.authorizationStatus
     }
     
     func requestAuthorization() {
         print("Requesting location authorization...")
-        locationManager.requestWhenInUseAuthorization()
-        startUpdating()
+        // Only request if not already authorized
+        if authorizationStatus == .notDetermined {
+            locationManager.requestWhenInUseAuthorization()
+        } else if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+            startUpdating()
+        }
     }
     
     func startUpdating() {
@@ -46,12 +54,20 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - CLLocationManagerDelegate
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
+        let newStatus = manager.authorizationStatus
         
-        switch authorizationStatus {
+        // Only proceed if the status has actually changed
+        guard newStatus != authorizationStatus else { return }
+        
+        authorizationStatus = newStatus
+        
+        switch newStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            startUpdating()
-            NotificationCenter.default.post(name: .locationAuthorizationDidChange, object: nil)
+            if !hasInitializedLocation {
+                hasInitializedLocation = true
+                startUpdating()
+                NotificationCenter.default.post(name: .locationAuthorizationDidChange, object: nil)
+            }
         case .denied, .restricted:
             stopUpdating()
             location = nil

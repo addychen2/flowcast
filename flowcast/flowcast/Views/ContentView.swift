@@ -1,30 +1,6 @@
 import SwiftUI
 import MapKit
-
-extension View {
-    func configureTabBar() -> some View {
-        self.onAppear {
-            let tabBarAppearance = UITabBarAppearance()
-            tabBarAppearance.configureWithDefaultBackground()
-            tabBarAppearance.backgroundColor = .black
-            
-            // Configure unselected tab appearance
-            tabBarAppearance.stackedLayoutAppearance.normal.iconColor = .gray
-            tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.gray
-            ]
-            
-            // Configure selected tab appearance
-            tabBarAppearance.stackedLayoutAppearance.selected.iconColor = .white
-            tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: UIColor.white
-            ]
-            
-            UITabBar.appearance().standardAppearance = tabBarAppearance
-            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-        }
-    }
-}
+import FirebaseAuth
 
 struct MapContainerView: View {
     @ObservedObject var routeManager: RouteManager
@@ -79,9 +55,6 @@ struct MapContainerView: View {
 }
 
 struct ContentView: View {
-    @StateObject private var locationManager: LocationManager
-    @StateObject private var routeManager: RouteManager
-    @StateObject private var trafficManager: TrafficManager
     @State private var selectedTab = 0
     @State private var mapType: MKMapType = .standard
     @State private var searchText = ""
@@ -90,24 +63,32 @@ struct ContentView: View {
     @State private var showStepsList: Bool = false
     @State private var selectedDestination: MKMapItem?
     
-    init() {
-        let locationManager = LocationManager()
-        _locationManager = StateObject(wrappedValue: locationManager)
-        _routeManager = StateObject(wrappedValue: RouteManager(locationManager: locationManager))
-        _trafficManager = StateObject(wrappedValue: TrafficManager(locationManager: locationManager))
-        locationManager.requestAuthorization()
-    }
+    // Access the environment objects
+    @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var routeManager: RouteManager
+    @EnvironmentObject var trafficManager: TrafficManager
+    @EnvironmentObject var authManager: AuthenticationManager
     
     var body: some View {
+        Group {
+            if !authManager.isAuthenticated {
+                AuthenticationView()
+            } else {
+                authenticatedContent
+            }
+        }
+    }
+    
+    private var authenticatedContent: some View {
         TabView(selection: $selectedTab) {
-            TrafficPredictionView()
-                .environmentObject(trafficManager)
+            // Your existing main app view
+            HomeView()
                 .tabItem {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                    Text("Traffic")
+                    Label("Home", systemImage: "house.fill")
                 }
                 .tag(0)
             
+            // Navigation View
             NavigationView {
                 MapContainerView(
                     routeManager: routeManager,
@@ -121,12 +102,35 @@ struct ContentView: View {
                 )
             }
             .tabItem {
-                Image(systemName: "map.fill")
-                Text("Navigation")
+                Label("Navigation", systemImage: "map.fill")
             }
             .tag(1)
+            
+            // Traffic View
+            TrafficPredictionView()
+                .environmentObject(trafficManager)
+                .tabItem {
+                    Label("Traffic", systemImage: "car.fill")
+                }
+                .tag(2)
+            
+            // Profile View with Sign Out
+            ProfileView()
+                .environmentObject(authManager)
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+                .tag(3)
         }
-        .configureTabBar()
+        .onAppear {
+            // Configure TabBar appearance
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .systemBackground
+            
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
         .sheet(isPresented: $showStepsList) {
             if let route = routeManager.route {
                 NavigationStepsListView(
@@ -158,6 +162,54 @@ struct ContentView: View {
     }
 }
 
+struct HomeView: View {
+    var body: some View {
+        Text("Home View")
+    }
+}
+
+struct ProfileView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    
+    var body: some View {
+        NavigationView {
+            List {
+                Section {
+                    VStack(spacing: 12) {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        
+                        if let email = authManager.user?.email {
+                            Text(email)
+                                .font(.headline)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical)
+                }
+                
+                Section {
+                    Button(role: .destructive) {
+                        do {
+                            try authManager.signOut()
+                        } catch {
+                            print("Error signing out: \(error)")
+                        }
+                    } label: {
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
+                }
+            }
+            .navigationTitle("Profile")
+        }
+    }
+}
+
 #Preview {
     ContentView()
+        .environmentObject(LocationManager())
+        .environmentObject(RouteManager(locationManager: LocationManager()))
+        .environmentObject(TrafficManager(locationManager: LocationManager()))
+        .environmentObject(AuthenticationManager())
 }
