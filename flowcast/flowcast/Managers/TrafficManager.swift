@@ -11,6 +11,7 @@ extension MKPolyline {
     }
 }
 
+@MainActor
 class TrafficManager: ObservableObject {
     @Published var predictions: [TrafficPrediction] = []
     @Published var currentTrafficSegments: [TrafficSegment] = []
@@ -19,6 +20,10 @@ class TrafficManager: ObservableObject {
     private var isGenerating = false
     private var pendingLocation: CLLocation?
     private var activeDirectionsRequests: [MKDirections] = []
+    private var lastUpdateTime: Date?
+    private let minimumUpdateInterval: TimeInterval = 120 // 2 minutes between updates
+    private var trafficRequestQueue: [(CLLocation, () -> Void)] = []
+    private var isProcessingQueue = false
     
     init(locationManager: LocationManager? = nil) {
         self.locationManager = locationManager
@@ -54,22 +59,61 @@ class TrafficManager: ObservableObject {
     }
     
     func startTrafficUpdates() {
-        timer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
-            self?.updateTrafficData()
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 120.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.updateTrafficData()
+            }
         }
         updateTrafficData()
     }
     
     func updateTrafficData() {
+        // Check if enough time has passed since last update
+        if let lastUpdate = lastUpdateTime {
+            let timeSinceLastUpdate = Date().timeIntervalSince(lastUpdate)
+            if timeSinceLastUpdate < minimumUpdateInterval {
+                return
+            }
+        }
+        
         if let location = pendingLocation {
-            generateTrafficAroundLocation(location)
+            enqueueTrafficRequest(location)
             pendingLocation = nil
         } else if let location = locationManager?.location {
-            generateTrafficAroundLocation(location)
+            enqueueTrafficRequest(location)
         }
     }
     
-    @MainActor
+    private func enqueueTrafficRequest(_ location: CLLocation) {
+        trafficRequestQueue.append((location, {}))
+        processTrafficQueue()
+    }
+    
+    private func processTrafficQueue() {
+        guard !isProcessingQueue, let (location, completion) = trafficRequestQueue.first else { return }
+        
+        isProcessingQueue = true
+        Task {
+            await generateTrafficAroundLocation(location)
+            
+            await MainActor.run {
+                self.trafficRequestQueue.removeFirst()
+                self.isProcessingQueue = false
+                completion()
+                
+                // Process next request if any, with delay
+                if !self.trafficRequestQueue.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        Task { @MainActor in
+                            self.processTrafficQueue()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     func generateTrafficForSearchedLocation(_ coordinate: CLLocationCoordinate2D) {
         // Cancel any active directions requests
         activeDirectionsRequests.forEach { $0.cancel() }
@@ -82,20 +126,26 @@ class TrafficManager: ObservableObject {
         updateTrafficData()
     }
     
-    private func generateTrafficAroundLocation(_ location: CLLocation) {
+    private func generateTrafficAroundLocation(_ location: CLLocation) async {
         guard !isGenerating else { return }
         isGenerating = true
         
-        let numberOfDirections = 12 // Increased number of directions for better coverage
-        var newSegments: [TrafficSegment] = []
-        let dispatchGroup = DispatchGroup()
+        // Reduced number of directions and distances
+        let numberOfDirections = 6 // Reduced from 12
+        let radiusDistances = [0.01] // Reduced from [0.005, 0.01, 0.015]
         
-        // Generate routes in multiple distances
-        let radiusDistances = [0.005, 0.01, 0.015] // Multiple rings of routes
+        var newSegments: [TrafficSegment] = []
+        var requestCount = 0
+        let maxRequests = 10 // Maximum number of requests to make at once
         
         for radius in radiusDistances {
             for i in 0..<numberOfDirections {
-                dispatchGroup.enter()
+                // Check if we've hit the request limit
+                if requestCount >= maxRequests {
+                    continue
+                }
+                
+                requestCount += 1
                 
                 let angle = Double(i) * (360.0 / Double(numberOfDirections))
                 let destLat = location.coordinate.latitude + (radius * cos(angle.radians))
@@ -103,46 +153,55 @@ class TrafficManager: ObservableObject {
                 
                 let destination = CLLocationCoordinate2D(latitude: destLat, longitude: destLon)
                 
-                let request = MKDirections.Request()
-                request.source = MKMapItem(placemark: MKPlacemark(coordinate: location.coordinate))
-                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-                request.transportType = .automobile
-                request.requestsAlternateRoutes = true
-                
-                let directions = MKDirections(request: request)
-                activeDirectionsRequests.append(directions)
-                
-                directions.calculate { [weak self] response, error in
-                    defer {
-                        dispatchGroup.leave()
-                        self?.activeDirectionsRequests.removeAll { $0 === directions }
-                    }
-                    
-                    guard let routes = response?.routes else { return }
-                    
-                    // Take the first two alternate routes if available
-                    let routesToUse = Array(routes.prefix(2))
-                    
-                    for route in routesToUse {
+                do {
+                    if let route = try await calculateRoute(from: location.coordinate, to: destination) {
                         for step in route.steps {
                             let coordinates = step.polyline.coordinates()
                             if coordinates.count >= 2 {
                                 let segment = TrafficSegment(
                                     coordinates: coordinates,
-                                    congestionLevel: self?.generateRandomCongestion() ?? .low,
-                                    vehicleCount: Int.random(in: 2...6)
+                                    congestionLevel: generateRandomCongestion(),
+                                    vehicleCount: Int.random(in: 1...3)
                                 )
                                 newSegments.append(segment)
                             }
                         }
                     }
+                } catch {
+                    if let error = error as? NSError,
+                       error.domain == MKError.errorDomain,
+                       error.code == MKError.Code.loadingThrottled.rawValue {
+                        print("Traffic data rate limited, will retry later")
+                        break
+                    }
                 }
             }
         }
         
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            self?.currentTrafficSegments = newSegments
-            self?.isGenerating = false
+        await MainActor.run {
+            self.currentTrafficSegments = newSegments
+            self.isGenerating = false
+            self.lastUpdateTime = Date()
+        }
+    }
+    
+    private func calculateRoute(from source: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) async throws -> MKRoute? {
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: source))
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+        request.transportType = .automobile
+        request.requestsAlternateRoutes = false
+        
+        let directions = MKDirections(request: request)
+        activeDirectionsRequests.append(directions)
+        
+        do {
+            let response = try await directions.calculate()
+            activeDirectionsRequests.removeAll { $0 === directions }
+            return response.routes.first
+        } catch {
+            activeDirectionsRequests.removeAll { $0 === directions }
+            throw error
         }
     }
     

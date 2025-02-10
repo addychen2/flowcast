@@ -2,58 +2,6 @@ import SwiftUI
 import MapKit
 import FirebaseAuth
 
-struct MapContainerView: View {
-    @ObservedObject var routeManager: RouteManager
-    @ObservedObject var trafficManager: TrafficManager
-    @Binding var mapType: MKMapType
-    @Binding var searchText: String
-    @Binding var showSearchResults: Bool
-    @Binding var destinations: [MKMapItem]
-    @Binding var showStepsList: Bool
-    @Binding var selectedDestination: MKMapItem?
-    
-    var body: some View {
-        ZStack(alignment: .top) {
-            MapView(routeManager: routeManager,
-                   trafficManager: trafficManager,
-                   mapType: $mapType)
-                .edgesIgnoringSafeArea(.all)
-            
-            if routeManager.isNavigating {
-                NavigationHeaderContent(
-                    routeManager: routeManager,
-                    showStepsList: $showStepsList
-                )
-            } else {
-                SearchContent(
-                    searchText: $searchText,
-                    showSearchResults: $showSearchResults,
-                    destinations: destinations,
-                    selectedDestination: $selectedDestination,
-                    routeManager: routeManager,
-                    trafficManager: trafficManager
-                )
-            }
-            
-            MapControlsContent(
-                routeManager: routeManager,
-                mapType: $mapType
-            )
-            
-            if let route = routeManager.route,
-               !routeManager.isNavigating,
-               let selectedDestination = selectedDestination {
-                RoutePreviewContent(
-                    route: route,
-                    selectedDestination: selectedDestination,
-                    routeManager: routeManager,
-                    showStepsList: $showStepsList
-                )
-            }
-        }
-    }
-}
-
 struct ContentView: View {
     @State private var selectedTab = 0
     @State private var mapType: MKMapType = .standard
@@ -62,6 +10,7 @@ struct ContentView: View {
     @State private var destinations: [MKMapItem] = []
     @State private var showStepsList: Bool = false
     @State private var selectedDestination: MKMapItem?
+    @State private var showSavedTrips = false
     
     // Access the environment objects
     @EnvironmentObject var locationManager: LocationManager
@@ -81,7 +30,7 @@ struct ContentView: View {
     
     private var authenticatedContent: some View {
         TabView(selection: $selectedTab) {
-            // Your existing main app view
+            // Home View
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
@@ -98,8 +47,14 @@ struct ContentView: View {
                     showSearchResults: $showSearchResults,
                     destinations: $destinations,
                     showStepsList: $showStepsList,
-                    selectedDestination: $selectedDestination
+                    selectedDestination: $selectedDestination,
+                    showSavedTrips: $showSavedTrips
                 )
+            }
+            .sheet(isPresented: $showSavedTrips) {
+                SavedTripsView()
+                    .environmentObject(routeManager)
+                    .environmentObject(authManager)
             }
             .tabItem {
                 Label("Navigation", systemImage: "map.fill")
@@ -117,6 +72,7 @@ struct ContentView: View {
             // Profile View with Sign Out
             ProfileView()
                 .environmentObject(authManager)
+                .environmentObject(routeManager)
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
@@ -166,50 +122,4 @@ struct HomeView: View {
     var body: some View {
         Text("Home View")
     }
-}
-
-struct ProfileView: View {
-    @EnvironmentObject var authManager: AuthenticationManager
-    
-    var body: some View {
-        NavigationView {
-            List {
-                Section {
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
-                        
-                        if let email = authManager.user?.email {
-                            Text(email)
-                                .font(.headline)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
-                }
-                
-                Section {
-                    Button(role: .destructive) {
-                        do {
-                            try authManager.signOut()
-                        } catch {
-                            print("Error signing out: \(error)")
-                        }
-                    } label: {
-                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
-                    }
-                }
-            }
-            .navigationTitle("Profile")
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(LocationManager())
-        .environmentObject(RouteManager(locationManager: LocationManager()))
-        .environmentObject(TrafficManager(locationManager: LocationManager()))
-        .environmentObject(AuthenticationManager())
 }

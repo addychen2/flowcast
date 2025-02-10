@@ -1,10 +1,18 @@
 import SwiftUI
 import FirebaseCore
+import FirebaseFirestore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        
+        // Configure Firestore settings
+        let db = Firestore.firestore()
+        let settings = db.settings
+        settings.isPersistenceEnabled = true // Enable offline persistence
+        db.settings = settings
+        
         return true
     }
 }

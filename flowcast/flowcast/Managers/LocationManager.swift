@@ -29,6 +29,17 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         // Get initial authorization status
         authorizationStatus = locationManager.authorizationStatus
+        
+        // Request authorization immediately if not determined
+        if authorizationStatus == .notDetermined {
+            print("Requesting initial location authorization...")
+            locationManager.requestWhenInUseAuthorization()
+        } else if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+            print("Location authorization already granted, starting updates...")
+            startUpdating()
+        } else {
+            print("Location authorization status: \(authorizationStatus)")
+        }
     }
     
     func requestAuthorization() {
@@ -42,6 +53,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func startUpdating() {
+        print("Starting location updates...")
         locationManager.startUpdatingLocation()
         locationManager.startUpdatingHeading()
     }
@@ -60,6 +72,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard newStatus != authorizationStatus else { return }
         
         authorizationStatus = newStatus
+        print("Location authorization changed to: \(newStatus)")
         
         switch newStatus {
         case .authorizedWhenInUse, .authorizedAlways:
@@ -89,7 +102,10 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard let newLocation = locations.last else { return }
         
         // Filter out invalid locations
-        guard newLocation.horizontalAccuracy >= 0 else { return }
+        guard newLocation.horizontalAccuracy >= 0 else {
+            print("Discarding invalid location with accuracy: \(newLocation.horizontalAccuracy)")
+            return
+        }
         
         // If we have a previous location, check if the new one is significantly different
         if let previousLocation = location {
@@ -98,6 +114,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             guard distance > 5 else { return }
         }
         
+        print("Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude)")
         location = newLocation
         NotificationCenter.default.post(name: .locationDidUpdate, object: newLocation)
     }

@@ -21,7 +21,6 @@ struct RoutePreviewView: View {
         self.destination = destination
         self.onStartNavigation = onStartNavigation
         self._showStepsList = showStepsList
-        // Initialize with route's expected travel time and random traffic density
         self._predictedTravelTime = State(initialValue: route.expectedTravelTime)
         self._trafficDensity = State(initialValue: Double.random(in: 0.3...0.9))
     }
@@ -65,7 +64,7 @@ struct RoutePreviewView: View {
                     }
                 }
                 
-                HStack(spacing: 24) {
+                HStack(spacing: 16) {
                     Button(action: onStartNavigation) {
                         Text("Start")
                             .font(.system(size: 16, weight: .semibold))
@@ -75,6 +74,11 @@ struct RoutePreviewView: View {
                             .background(Color.blue)
                             .cornerRadius(24)
                     }
+                    
+                    SaveRouteButton(
+                        sourceItem: source,
+                        destinationItem: destinationItem
+                    )
                     
                     Button(action: { showStepsList = true }) {
                         HStack {
@@ -87,15 +91,6 @@ struct RoutePreviewView: View {
                         .padding(.vertical, 12)
                         .background(Color.blue.opacity(0.1))
                         .cornerRadius(24)
-                    }
-                    
-                    Button(action: {}) {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 20))
-                            .foregroundColor(.gray)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(Circle())
                     }
                 }
             }
