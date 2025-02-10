@@ -14,6 +14,13 @@
 		B5AF8C9E2D4D8EF2003E0BB6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B5AF8C9D2D4D8EF2003E0BB6 /* FirebaseFirestore */; };
 		B5AF8CA92D4D93F6003E0BB6 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B5AF8CA82D4D93F6003E0BB6 /* GoogleSignIn */; };
 		B5AF8CAB2D4D93F6003E0BB6 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B5AF8CAA2D4D93F6003E0BB6 /* GoogleSignInSwift */; };
+		B5F1828D2D580D62006DE3E5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B5F1828C2D580D62006DE3E5 /* FirebaseCore */; };
+		B5F1828F2D580D62006DE3E5 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B5F1828E2D580D62006DE3E5 /* FirebaseFirestoreCombine-Community */; };
+		B5F182912D580D62006DE3E5 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = B5F182902D580D62006DE3E5 /* FirebaseInAppMessaging-Beta */; };
+		B5F182932D580D62006DE3E5 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B5F182922D580D62006DE3E5 /* FirebaseMessaging */; };
+		B5F182952D580D62006DE3E5 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B5F182942D580D62006DE3E5 /* FirebasePerformance */; };
+		B5F182972D580D62006DE3E5 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B5F182962D580D62006DE3E5 /* FirebaseStorage */; };
+		B5F182992D580D62006DE3E5 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B5F182982D580D62006DE3E5 /* FirebaseStorageCombine-Community */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,10 +96,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5F182952D580D62006DE3E5 /* FirebasePerformance in Frameworks */,
 				B5AF8C9C2D4D8EF2003E0BB6 /* FirebaseDatabase in Frameworks */,
+				B5F1828F2D580D62006DE3E5 /* FirebaseFirestoreCombine-Community in Frameworks */,
+				B5F182992D580D62006DE3E5 /* FirebaseStorageCombine-Community in Frameworks */,
+				B5F182932D580D62006DE3E5 /* FirebaseMessaging in Frameworks */,
+				B5F182912D580D62006DE3E5 /* FirebaseInAppMessaging-Beta in Frameworks */,
+				B5F182972D580D62006DE3E5 /* FirebaseStorage in Frameworks */,
 				B5AF8CAB2D4D93F6003E0BB6 /* GoogleSignInSwift in Frameworks */,
 				B5AF8CA92D4D93F6003E0BB6 /* GoogleSignIn in Frameworks */,
 				B5AF8C9A2D4D8EF2003E0BB6 /* FirebaseAuth in Frameworks */,
+				B5F1828D2D580D62006DE3E5 /* FirebaseCore in Frameworks */,
 				B59717092D4AB0800011FDF5 /* Authenticator in Frameworks */,
 				B5AF8C9E2D4D8EF2003E0BB6 /* FirebaseFirestore in Frameworks */,
 			);
@@ -171,6 +185,13 @@
 				B5AF8C9D2D4D8EF2003E0BB6 /* FirebaseFirestore */,
 				B5AF8CA82D4D93F6003E0BB6 /* GoogleSignIn */,
 				B5AF8CAA2D4D93F6003E0BB6 /* GoogleSignInSwift */,
+				B5F1828C2D580D62006DE3E5 /* FirebaseCore */,
+				B5F1828E2D580D62006DE3E5 /* FirebaseFirestoreCombine-Community */,
+				B5F182902D580D62006DE3E5 /* FirebaseInAppMessaging-Beta */,
+				B5F182922D580D62006DE3E5 /* FirebaseMessaging */,
+				B5F182942D580D62006DE3E5 /* FirebasePerformance */,
+				B5F182962D580D62006DE3E5 /* FirebaseStorage */,
+				B5F182982D580D62006DE3E5 /* FirebaseStorageCombine-Community */,
 			);
 			productName = flowcast;
 			productReference = B56035FC2D30810F00909ABE /* flowcast.app */;
@@ -689,6 +710,34 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5AF8CA72D4D93F6003E0BB6 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		B5F1828C2D580D62006DE3E5 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseCore;
+		};
+		B5F1828E2D580D62006DE3E5 /* FirebaseFirestoreCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		B5F182902D580D62006DE3E5 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseInAppMessaging-Beta";
+		};
+		B5F182922D580D62006DE3E5 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseMessaging;
+		};
+		B5F182942D580D62006DE3E5 /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebasePerformance;
+		};
+		B5F182962D580D62006DE3E5 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseStorage;
+		};
+		B5F182982D580D62006DE3E5 /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseStorageCombine-Community";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
