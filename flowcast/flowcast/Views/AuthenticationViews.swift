@@ -201,6 +201,13 @@ struct AuthenticationView: View {
         .sheet(isPresented: $showPhoneAuth) {
             PhoneAuthView()
         }
+        .sheet(isPresented: Binding<Bool>(
+            get: { authManager.isMFARequired },
+            set: { if !$0 { authManager.cancelMFA() } }
+        )) {
+            MultiFactorAuthView()
+                .environmentObject(authManager)
+        }
     }
     
     private var isValidInput: Bool {
@@ -213,12 +220,23 @@ struct AuthenticationView: View {
     
     private func handleSignIn() async {
         isLoading = true
+        showError = false
+        
         do {
             try await authManager.signIn(email: email, password: password)
+        } catch let error as AuthError {
+            if error == .mfaRequired {
+                // MFA required - the MultiFactorAuthView will be shown automatically
+                print("MFA required, presenting verification view")
+            } else {
+                showError = true
+                errorMessage = error.localizedDescription
+            }
         } catch {
             showError = true
             errorMessage = error.localizedDescription
         }
+        
         isLoading = false
     }
     
@@ -230,6 +248,8 @@ struct AuthenticationView: View {
         }
         
         isLoading = true
+        showError = false
+        
         do {
             try await authManager.signUp(email: email, password: password)
         } catch {
@@ -241,20 +261,22 @@ struct AuthenticationView: View {
     
     private func handleGoogleSignIn() async {
         isLoading = true
+        showError = false
+        
         do {
             try await authManager.signInWithGoogle()
+        } catch let error as AuthError {
+            if error == .mfaRequired {
+                // MFA required - the MultiFactorAuthView will be shown automatically
+                print("MFA required for Google sign-in, presenting verification view")
+            } else {
+                showError = true
+                errorMessage = error.localizedDescription
+            }
         } catch {
             showError = true
             errorMessage = error.localizedDescription
         }
         isLoading = false
-    }
-}
-
-// Preview
-struct AuthenticationView_Previews: PreviewProvider {
-    static var previews: some View {
-        AuthenticationView()
-            .environmentObject(AuthenticationManager())
     }
 }

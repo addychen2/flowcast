@@ -38,38 +38,6 @@ struct NavigationHeaderContent: View {
     }
 }
 
-struct SearchContent: View {
-    @Binding var searchText: String
-    @Binding var showSearchResults: Bool
-    let destinations: [MKMapItem]
-    @Binding var selectedDestination: MKMapItem?
-    @ObservedObject var routeManager: RouteManager
-    let trafficManager: TrafficManager  // Changed to let instead of @ObservedObject
-    
-    var body: some View {
-        VStack {
-            SearchBar(text: $searchText, isActive: $showSearchResults) {
-                // Search functionality is handled in onChange
-            }
-            .padding(.top, 44)
-            
-            if showSearchResults {
-                SearchResultsView(destinations: destinations) { destination in
-                    selectedDestination = destination
-                    routeManager.setDestination(destination)
-                    Task {
-                        await trafficManager.generateTrafficForSearchedLocation(destination.placemark.coordinate)
-                    }
-                    showSearchResults = false
-                    searchText = ""
-                }
-            }
-            
-            Spacer()
-        }
-    }
-}
-
 struct MapControlsContent: View {
     @ObservedObject var routeManager: RouteManager
     @Binding var mapType: MKMapType

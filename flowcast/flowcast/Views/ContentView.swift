@@ -50,6 +50,8 @@ struct ContentView: View {
                     selectedDestination: $selectedDestination,
                     showSavedTrips: $showSavedTrips
                 )
+                .withSafeAreaInsets() // Add safe area insets to environment
+                // Removed toolbar items with bookmark button
             }
             .sheet(isPresented: $showSavedTrips) {
                 SavedTripsView()
