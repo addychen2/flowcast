@@ -60,11 +60,13 @@ struct PhoneAuthView: View {
                 
                 Spacer()
             }
+            .padding(.horizontal)
             .navigationTitle("Phone Sign In")
             .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $showVerificationView) {
             VerificationView(phoneNumber: phoneNumber)
+                .environmentObject(authManager)
         }
     }
     
@@ -102,6 +104,7 @@ struct PhoneAuthView: View {
             // Format phone number for Firebase
             let formattedNumber = "+1" + phoneNumber.filter { $0.isNumber }
             try await authManager.signInWithPhone(phoneNumber: formattedNumber)
+            // Show verification view after phone number is sent
             showVerificationView = true
         } catch {
             showError = true
@@ -181,6 +184,8 @@ struct VerificationView: View {
         
         do {
             try await authManager.verifyCode(verificationCode)
+            // Successfully verified, the authManager will update isAuthenticated
+            // and the main view will transition to the home screen
             dismiss()
         } catch {
             showError = true
@@ -188,13 +193,5 @@ struct VerificationView: View {
         }
         
         isLoading = false
-    }
-}
-
-// Preview
-struct PhoneAuthView_Previews: PreviewProvider {
-    static var previews: some View {
-        PhoneAuthView()
-            .environmentObject(AuthenticationManager())
     }
 }

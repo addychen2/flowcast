@@ -45,6 +45,5 @@ struct SearchResultsView: View {
         .background(Color(.systemBackground))
         .cornerRadius(10)
         .shadow(radius: 2)
-        .padding(.horizontal)
     }
 }

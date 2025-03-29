@@ -7,33 +7,31 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                    .padding(.leading, 8)
-                
-                TextField("Search destination", text: $text)
-                    .submitLabel(.search)
-                    .autocorrectionDisabled()
-                
-                if !text.isEmpty {
-                    Button(action: {
-                        text = ""
-                        isActive = false
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                     to: nil, from: nil, for: nil)
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                            .padding(.trailing, 8)
-                    }
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+                .padding(.leading, 8)
+            
+            TextField("Search destination", text: $text)
+                .submitLabel(.search)
+                .autocorrectionDisabled()
+                .font(.system(size: 16))
+            
+            if !text.isEmpty {
+                Button(action: {
+                    text = ""
+                    isActive = false
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                 to: nil, from: nil, for: nil)
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 8)
                 }
             }
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
-            .cornerRadius(10)
-            .shadow(color: Color.black.opacity(0.2), radius: 2)
         }
-        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(Color(.systemBackground))
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.2), radius: 2)
     }
 }

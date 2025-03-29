@@ -1,5 +1,9 @@
 import SwiftUI
 
+// Note: This component is no longer needed as the functionality
+// has been integrated into the WeatherContentView directly.
+// Keeping this file for reference.
+
 struct WeatherListButton: View {
     @Binding var isListViewShowing: Bool
     let currentPage: Int
